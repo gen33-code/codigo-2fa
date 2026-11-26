@@ -670,20 +670,21 @@ code {
 
 @media (max-width: 680px) {
   main {
-    padding-top: 1.15rem;
+    padding-top: 0.85rem;
   }
 
   .hero {
-    margin-bottom: 1.1rem;
+    margin-bottom: 0.85rem;
   }
 
   h1 {
     max-width: none;
-    font-size: 1.75rem;
+    font-size: 1.55rem;
+    margin-bottom: 0.35rem;
   }
 
   .lead {
-    font-size: 0.98rem;
+    display: none;
   }
 
   .privacy-chip {
