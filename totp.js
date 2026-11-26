@@ -33,7 +33,7 @@ export function base32Decode(input) {
   return new Uint8Array(bytes);
 }
 
-function mapAlgorithm(raw) {
+export function mapAlgorithm(raw) {
   const key = String(raw || "SHA1")
     .toUpperCase()
     .replace(/-/g, "")

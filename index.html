@@ -12,6 +12,7 @@
     <meta name="author" content="Código 2FA" />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#0f7a6c" />
+    <meta name="referrer" content="no-referrer" />
     <link rel="canonical" href="https://gen33-code.github.io/codigo-2fa/" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32" />
@@ -59,7 +60,7 @@
     <a class="skip-link" href="#herramienta">Ir al generador</a>
     <header class="site-header">
       <div class="header-inner">
-        <a class="brand" href="#inicio" aria-label="Código 2FA, inicio">
+        <a class="brand" href="./" aria-label="Código 2FA, inicio">
           <img class="brand-mark" src="favicon.svg" width="32" height="32" alt="" />
           <span class="brand-name">Código 2FA</span>
         </a>
@@ -83,7 +84,8 @@
     <main id="inicio">
       <section class="hero" aria-labelledby="titulo-principal">
         <p class="eyebrow">Totalmente local · Sin cuentas · Sin seguimiento</p>
-        <h1 id="titulo-principal">Generador de códigos 2FA online gratis</h1>
+        <h1 id="titulo-principal" class="title-editor">Generador de códigos 2FA online gratis</h1>
+        <h1 id="titulo-buyer" class="title-buyer" hidden>Tu código de verificación</h1>
         <p class="lead">
           Calcula códigos de verificación de dos factores (TOTP) en tu navegador.
           La clave secreta no se envía a ningún servidor y no se guarda en esta página.
@@ -92,14 +94,19 @@
 
       <section class="tool" id="herramienta" aria-labelledby="tool-title">
         <div class="tool-card">
-          <div class="tool-head">
+          <div class="tool-head editor-only">
             <h2 id="tool-title" class="visually-hidden">Generar un código</h2>
             <p class="privacy-chip">
               El cálculo ocurre solo en tu dispositivo. Puedes desconectar internet después de cargar la página.
             </p>
           </div>
 
-          <div class="field">
+          <p class="buyer-instruction" id="buyer-instruction" hidden>
+            Copia este código y pégalo donde te lo pidan. Cambia cada 30 segundos.
+          </p>
+          <p class="field-error" id="load-error" role="alert" hidden></p>
+
+          <div class="field editor-only">
             <label for="secret-input">Clave secreta o enlace otpauth://</label>
             <textarea
               id="secret-input"
@@ -113,7 +120,20 @@
             <p class="field-error" id="secret-error" role="alert" hidden></p>
           </div>
 
-          <div class="tool-actions">
+          <div class="field editor-only">
+            <label for="account-name">Nombre de la cuenta (opcional)</label>
+            <input
+              id="account-name"
+              name="account-name"
+              type="text"
+              maxlength="80"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Por ejemplo, Cuenta de prueba"
+            />
+          </div>
+
+          <div class="tool-actions editor-only">
             <button type="button" class="btn btn-secondary" id="btn-scan" aria-haspopup="dialog" aria-expanded="false">
               Escanear QR con la cámara
             </button>
@@ -147,11 +167,44 @@
                 </svg>
                 <span class="ring-seconds" id="countdown-seconds">30</span>
               </div>
-              <button type="button" class="btn btn-primary" id="btn-copy" disabled>
-                <span id="copy-label">Copiar</span>
-              </button>
+              <div class="code-actions">
+                <button type="button" class="btn btn-primary" id="btn-copy" disabled>
+                  <span id="copy-label">Copiar</span>
+                </button>
+                <button type="button" class="btn btn-share editor-only" id="btn-share" disabled>
+                  Compartir
+                </button>
+              </div>
             </div>
           </div>
+
+          <div class="share-panel editor-only" id="share-panel" hidden>
+            <p class="share-hint">
+              Quien abra este enlace verá el código en vivo, sin que se muestre la clave secreta.
+              Compártelo solo con quien corresponda.
+            </p>
+            <label class="share-link-label" for="share-link">Enlace para compartir</label>
+            <div class="share-row">
+              <input id="share-link" type="text" readonly spellcheck="false" />
+              <button type="button" class="btn btn-secondary" id="btn-copy-link">
+                <span id="copy-link-label">Copiar enlace</span>
+              </button>
+            </div>
+            <a
+              class="btn btn-whatsapp"
+              id="btn-whatsapp"
+              href="https://wa.me/"
+              target="_blank"
+              rel="noopener noreferrer"
+              referrerpolicy="no-referrer"
+            >
+              Enviar por WhatsApp
+            </a>
+          </div>
+
+          <p class="buyer-edit-wrap" id="buyer-edit-wrap" hidden>
+            <a class="buyer-edit-link" id="link-own-code" href="./">Generar mi propio código</a>
+          </p>
           <p class="sr-live" id="live-status" role="status" aria-live="polite"></p>
         </div>
       </section>

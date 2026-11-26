@@ -14,6 +14,14 @@ Generador de códigos 2FA (TOTP) que funciona por completo en el navegador. Grat
 
 Esta herramienta no sustituye guardar las claves de respaldo en un gestor de contraseñas.
 
+## Compartir un código
+
+Puedes generar un enlace para que otra persona vea el código en vivo, sin mostrarle la clave en pantalla. El secreto viaja solo en el fragmento de la URL (`#k=...`), nunca en la query, y no se envía al servidor.
+
+Ejemplo: `https://gen33-code.github.io/codigo-2fa/#k=JBSWY3DPEHPK3PXP`
+
+Quien tenga el enlace puede calcular el mismo código, así que compártelo solo con quien corresponda. Esta herramienta no sustituye guardar las claves de respaldo en un gestor de contraseñas.
+
 ## Uso local
 
 Sirve la carpeta con cualquier servidor estático, por ejemplo:

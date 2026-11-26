@@ -4,10 +4,18 @@ import {
   parseInput,
   remainingSeconds,
 } from "./totp.js";
+import {
+  buildShareUrl,
+  parseHash,
+  shareMessage,
+  whatsappShareUrl,
+} from "./share.js";
 
 const els = {
   input: document.getElementById("secret-input"),
+  accountName: document.getElementById("account-name"),
   error: document.getElementById("secret-error"),
+  loadError: document.getElementById("load-error"),
   clear: document.getElementById("btn-clear"),
   demo: document.getElementById("btn-demo"),
   scan: document.getElementById("btn-scan"),
@@ -16,6 +24,12 @@ const els = {
   code: document.getElementById("totp-code"),
   copy: document.getElementById("btn-copy"),
   copyLabel: document.getElementById("copy-label"),
+  share: document.getElementById("btn-share"),
+  sharePanel: document.getElementById("share-panel"),
+  shareLink: document.getElementById("share-link"),
+  copyLink: document.getElementById("btn-copy-link"),
+  copyLinkLabel: document.getElementById("copy-link-label"),
+  whatsapp: document.getElementById("btn-whatsapp"),
   meta: document.getElementById("code-meta"),
   issuer: document.getElementById("code-issuer"),
   seconds: document.getElementById("countdown-seconds"),
@@ -27,6 +41,10 @@ const els = {
   video: document.getElementById("camera-video"),
   cameraClose: document.getElementById("btn-camera-close"),
   cameraStatus: document.getElementById("camera-status"),
+  titleEditor: document.getElementById("titulo-principal"),
+  titleBuyer: document.getElementById("titulo-buyer"),
+  buyerInstruction: document.getElementById("buyer-instruction"),
+  buyerEditWrap: document.getElementById("buyer-edit-wrap"),
 };
 
 const RING_RADIUS = 26;
@@ -44,15 +62,18 @@ const MESSAGES = {
   "invalid-digits": "El enlace pide una cantidad de dígitos que no se puede usar (tiene que ser 6, 7 u 8).",
   "invalid-period": "El periodo del enlace no es válido.",
   empty: "Ingresa una clave secreta o un enlace otpauth:// para ver el código.",
+  "invalid-link": "Este enlace no es válido o está incompleto.",
 };
 
 let config = null;
 let lastCode = "";
 let tickTimer = 0;
 let copyTimer = 0;
+let copyLinkTimer = 0;
 let cameraStream = null;
 let cameraLoop = 0;
 let scanBusy = false;
+let buyerMode = false;
 
 function setTheme(theme) {
   const next = theme === "light" || theme === "dark" ? theme : null;
@@ -98,15 +119,21 @@ function announce(text) {
 }
 
 function showError(code) {
-  const text = MESSAGES[code] || "No se pudo leer esa clave.";
-  els.error.textContent = text;
-  els.error.hidden = false;
-  els.input.setAttribute("aria-invalid", "true");
+  const text = MESSAGES[code] || (buyerMode ? MESSAGES["invalid-link"] : "No se pudo leer esa clave.");
+  const target = buyerMode ? els.loadError : els.error;
+  const other = buyerMode ? els.error : els.loadError;
+  target.textContent = text;
+  target.hidden = false;
+  other.textContent = "";
+  other.hidden = true;
+  if (!buyerMode) els.input.setAttribute("aria-invalid", "true");
 }
 
 function clearError() {
   els.error.textContent = "";
   els.error.hidden = true;
+  els.loadError.textContent = "";
+  els.loadError.hidden = true;
   els.input.removeAttribute("aria-invalid");
 }
 
@@ -125,17 +152,97 @@ function formatMeta(cfg) {
   return parts.join(" · ");
 }
 
+function displayLabel(cfg) {
+  if (!cfg) return "";
+  const name = (cfg.account || "").trim();
+  const issuer = (cfg.issuer || "").trim();
+  if (name && issuer && name !== issuer) return `${issuer} · ${name}`;
+  return name || issuer;
+}
+
+function currentName() {
+  return (els.accountName.value || "").trim();
+}
+
+function defaultCopyLabel() {
+  return buyerMode ? "Copiar código" : "Copiar";
+}
+
 function setIdleCode() {
   lastCode = "";
   els.code.textContent = "••••••";
   els.code.classList.add("is-idle");
   els.copy.disabled = true;
+  els.share.disabled = true;
   els.issuer.textContent = "";
   els.meta.textContent = "";
   els.seconds.textContent = "30";
   els.ring.style.strokeDashoffset = String(RING_CIRCUMFERENCE);
   els.bar.style.transform = "scaleX(0)";
   document.querySelector(".code-panel").classList.remove("is-urgent");
+  els.copyLabel.textContent = defaultCopyLabel();
+  els.copy.classList.remove("is-copied");
+  if (!buyerMode) hideSharePanel();
+}
+
+function shareBase() {
+  return `${location.origin}${location.pathname}`;
+}
+
+function currentShareUrl() {
+  if (!config) return "";
+  return buildShareUrl(config, shareBase());
+}
+
+function updateSharePanel() {
+  if (!config) {
+    hideSharePanel();
+    return;
+  }
+  const url = currentShareUrl();
+  els.shareLink.value = url;
+  els.whatsapp.href = whatsappShareUrl(url, displayLabel(config) || currentName());
+  els.whatsapp.hidden = false;
+}
+
+function hideSharePanel() {
+  els.sharePanel.hidden = true;
+  els.shareLink.value = "";
+  els.whatsapp.href = "https://wa.me/";
+  els.copyLinkLabel.textContent = "Copiar enlace";
+  els.copyLink.classList.remove("is-copied");
+}
+
+function showSharePanel() {
+  if (!config) return;
+  updateSharePanel();
+  els.sharePanel.hidden = false;
+}
+
+function updateBuyerInstruction() {
+  const period = config && config.period ? config.period : 30;
+  els.buyerInstruction.textContent =
+    period === 30
+      ? "Copia este código y pégalo donde te lo pidan. Cambia cada 30 segundos."
+      : `Copia este código y pégalo donde te lo pidan. Cambia cada ${period} segundos.`;
+}
+
+function setBuyerMode(on, label = "") {
+  buyerMode = Boolean(on);
+  document.body.classList.toggle("is-buyer", buyerMode);
+  els.titleEditor.hidden = buyerMode;
+  els.titleBuyer.hidden = !buyerMode;
+  els.buyerInstruction.hidden = !buyerMode;
+  els.buyerEditWrap.hidden = !buyerMode;
+  if (buyerMode) {
+    els.titleBuyer.textContent = label || "Tu código de verificación";
+    updateBuyerInstruction();
+    hideSharePanel();
+    els.copyLabel.textContent = defaultCopyLabel();
+  } else {
+    els.titleBuyer.textContent = "Tu código de verificación";
+    els.copyLabel.textContent = defaultCopyLabel();
+  }
 }
 
 async function applyConfig(next, { announceReady = false } = {}) {
@@ -156,10 +263,16 @@ async function applyConfig(next, { announceReady = false } = {}) {
     els.code.textContent = formatCode(code);
     els.code.classList.remove("is-idle");
     els.copy.disabled = false;
-    const label = [config.issuer, config.account].filter(Boolean).join(" · ");
+    els.share.disabled = buyerMode;
+    const label = displayLabel(config);
     els.issuer.textContent = label;
     els.meta.textContent = formatMeta(config);
+    if (buyerMode) {
+      els.titleBuyer.textContent = label || "Tu código de verificación";
+      updateBuyerInstruction();
+    }
     updateCountdown();
+    if (!els.sharePanel.hidden) updateSharePanel();
     if (announceReady) {
       announce(
         label
@@ -170,11 +283,19 @@ async function applyConfig(next, { announceReady = false } = {}) {
   } catch (err) {
     config = null;
     setIdleCode();
-    showError(err.code || "invalid-base32");
+    showError(err.code || (buyerMode ? "invalid-link" : "invalid-base32"));
   }
 }
 
+function mergeTypedName(parsed) {
+  if (!parsed) return parsed;
+  const name = currentName();
+  if (name) return { ...parsed, account: name };
+  return parsed;
+}
+
 function readInput() {
+  if (buyerMode) return;
   const raw = els.input.value;
   if (!String(raw).trim()) {
     clearError();
@@ -182,13 +303,21 @@ function readInput() {
     return;
   }
   try {
-    const parsed = parseInput(raw);
+    const parsed = mergeTypedName(parseInput(raw));
     applyConfig(parsed);
   } catch (err) {
     config = null;
     setIdleCode();
     showError(err.code || "invalid-base32");
   }
+}
+
+function onAccountNameInput() {
+  if (buyerMode) return;
+  if (!config) return;
+  config = { ...config, account: currentName() };
+  els.issuer.textContent = displayLabel(config);
+  if (!els.sharePanel.hidden) updateSharePanel();
 }
 
 function updateCountdown() {
@@ -226,13 +355,12 @@ async function tick() {
   }
 }
 
-async function copyCode() {
-  if (!lastCode) return;
+async function copyText(value) {
   try {
-    await navigator.clipboard.writeText(lastCode);
+    await navigator.clipboard.writeText(value);
   } catch {
     const tmp = document.createElement("textarea");
-    tmp.value = lastCode;
+    tmp.value = value;
     tmp.setAttribute("readonly", "");
     tmp.style.position = "fixed";
     tmp.style.left = "-9999px";
@@ -241,13 +369,60 @@ async function copyCode() {
     document.execCommand("copy");
     tmp.remove();
   }
+}
+
+async function copyCode() {
+  if (!lastCode) return;
+  await copyText(lastCode);
   els.copy.classList.add("is-copied");
   els.copyLabel.textContent = "Copiado";
   announce("Código copiado al portapapeles.");
   window.clearTimeout(copyTimer);
   copyTimer = window.setTimeout(() => {
     els.copy.classList.remove("is-copied");
-    els.copyLabel.textContent = "Copiar";
+    els.copyLabel.textContent = defaultCopyLabel();
+  }, 1800);
+}
+
+async function copyShareLink() {
+  const url = els.shareLink.value || currentShareUrl();
+  if (!url) return;
+  await copyText(url);
+  els.copyLink.classList.add("is-copied");
+  els.copyLinkLabel.textContent = "Link copiado";
+  announce("Enlace copiado al portapapeles.");
+  window.clearTimeout(copyLinkTimer);
+  copyLinkTimer = window.setTimeout(() => {
+    els.copyLink.classList.remove("is-copied");
+    els.copyLinkLabel.textContent = "Copiar enlace";
+  }, 1800);
+}
+
+async function onShare() {
+  if (!config) return;
+  showSharePanel();
+  const url = currentShareUrl();
+  const label = displayLabel(config);
+  if (typeof navigator.share === "function") {
+    try {
+      await navigator.share({
+        title: label ? `Código 2FA · ${label}` : "Código 2FA",
+        text: shareMessage(url, label),
+        url,
+      });
+      announce("Enlace listo para compartir.");
+      return;
+    } catch (err) {
+      if (err && err.name === "AbortError") return;
+    }
+  }
+  await copyShareLink();
+  const original = els.share.textContent;
+  els.share.textContent = "Link copiado";
+  els.share.classList.add("is-copied");
+  window.setTimeout(() => {
+    els.share.textContent = original || "Compartir";
+    els.share.classList.remove("is-copied");
   }, 1800);
 }
 
@@ -255,6 +430,37 @@ function fillSecret(value) {
   els.input.value = value;
   els.input.focus();
   readInput();
+}
+
+async function applyLocationHash() {
+  let parsed = null;
+  try {
+    parsed = parseHash(location.hash);
+  } catch (err) {
+    setBuyerMode(true);
+    config = null;
+    setIdleCode();
+    showError(err.code || "invalid-link");
+    announce("No se pudo leer el enlace.");
+    return;
+  }
+
+  if (!parsed) {
+    if (buyerMode) {
+      setBuyerMode(false);
+      els.input.value = "";
+      els.accountName.value = "";
+      clearError();
+      await applyConfig(null);
+    }
+    return;
+  }
+
+  // Do not put the secret in the input (buyer must not see it by default).
+  els.input.value = "";
+  els.accountName.value = "";
+  setBuyerMode(true, displayLabel(parsed));
+  await applyConfig(parsed, { announceReady: true });
 }
 
 async function decodeQrFromSource(source) {
@@ -430,6 +636,7 @@ els.input.addEventListener("input", readInput);
 els.input.addEventListener("paste", () => {
   window.setTimeout(readInput, 0);
 });
+els.accountName.addEventListener("input", onAccountNameInput);
 els.clear.addEventListener("click", () => {
   fillSecret("");
   els.input.focus();
@@ -440,6 +647,9 @@ els.demo.addEventListener("click", () => {
   announce("Se cargó una clave de ejemplo. No la uses para una cuenta real.");
 });
 els.copy.addEventListener("click", copyCode);
+els.share.addEventListener("click", onShare);
+els.copyLink.addEventListener("click", copyShareLink);
+els.shareLink.addEventListener("focus", () => els.shareLink.select());
 els.upload.addEventListener("click", () => els.file.click());
 els.file.addEventListener("change", () => {
   const file = els.file.files && els.file.files[0];
@@ -460,9 +670,13 @@ document.addEventListener("keydown", onKey);
 window.addEventListener("pagehide", () => {
   stopCamera();
 });
+window.addEventListener("hashchange", () => {
+  applyLocationHash();
+});
 
 initTheme();
 els.ring.style.strokeDasharray = String(RING_CIRCUMFERENCE);
 els.ring.style.strokeDashoffset = String(RING_CIRCUMFERENCE);
 setIdleCode();
 tickTimer = window.setInterval(tick, 200);
+applyLocationHash();
