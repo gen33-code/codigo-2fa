@@ -669,6 +669,36 @@ code {
 }
 
 @media (max-width: 680px) {
+  main {
+    padding-top: 1.15rem;
+  }
+
+  .hero {
+    margin-bottom: 1.1rem;
+  }
+
+  h1 {
+    max-width: none;
+    font-size: 1.75rem;
+  }
+
+  .lead {
+    font-size: 0.98rem;
+  }
+
+  .privacy-chip {
+    font-size: 0.86rem;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .tool-card {
+    padding: 1rem;
+  }
+
+  textarea {
+    min-height: 4.1rem;
+  }
+
   .code-panel {
     grid-template-columns: 1fr;
     text-align: center;
