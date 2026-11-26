@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Generador de códigos 2FA online gratis</title>
+    <meta
+      name="description"
+      content="Genera códigos de autenticación en dos pasos (TOTP) en tu navegador. Gratis, sin instalar apps y sin enviar tu clave a ningún servidor."
+    />
+    <meta name="robots" content="index,follow" />
+    <meta name="author" content="Código 2FA" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#0f7a6c" />
+    <link rel="canonical" href="https://gen33-code.github.io/codigo-2fa/" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_LA" />
+    <meta property="og:title" content="Generador de códigos 2FA online gratis" />
+    <meta
+      property="og:description"
+      content="Códigos TOTP en el navegador, al instante. La clave secreta no se envía ni se guarda."
+    />
+    <meta property="og:url" content="https://gen33-code.github.io/codigo-2fa/" />
+    <meta property="og:image" content="https://gen33-code.github.io/codigo-2fa/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Generador de códigos 2FA online gratis" />
+    <meta
+      name="twitter:description"
+      content="Códigos TOTP en el navegador, al instante. La clave secreta no se envía ni se guarda."
+    />
+    <meta name="twitter:image" content="https://gen33-code.github.io/codigo-2fa/og.png" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'none'; connect-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Código 2FA",
+        "alternateName": "Generador de códigos 2FA online gratis",
+        "url": "https://gen33-code.github.io/codigo-2fa/",
+        "applicationCategory": "SecurityApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires a modern browser with Web Crypto API",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "inLanguage": "es",
+        "description": "Generador TOTP en el navegador para códigos de autenticación en dos pasos. Todo el cálculo ocurre en tu dispositivo."
+      }
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#herramienta">Ir al generador</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="#inicio" aria-label="Código 2FA, inicio">
+          <img class="brand-mark" src="favicon.svg" width="32" height="32" alt="" />
+          <span class="brand-name">Código 2FA</span>
+        </a>
+        <button type="button" class="theme-toggle" id="btn-theme" aria-pressed="false">
+          <svg class="icon icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M15.2 2.1a1 1 0 0 1 1.15 1.37 8 8 0 1 0 4.18 4.18 1 1 0 0 1 1.37 1.15A10 10 0 1 1 15.2 2.1z"
+            />
+          </svg>
+          <svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M12 4a1 1 0 0 1 1-1h0a1 1 0 0 1 1 1v1a1 1 0 0 1-2 0V4zm0 14a1 1 0 0 1 1 1v1a1 1 0 0 1-2 0v-1a1 1 0 0 1 1-1zm8-6a1 1 0 0 1 1 1h0a1 1 0 0 1-1 1h-1a1 1 0 0 1 0-2h1zM5 12a1 1 0 0 1-1 1H3a1 1 0 0 1 0-2h1a1 1 0 0 1 1 1zm12.66-5.66a1 1 0 0 1 1.41 0l.71.7a1 1 0 1 1-1.41 1.42l-.71-.71a1 1 0 0 1 0-1.41zM5.64 16.95a1 1 0 0 1 1.41 0l.71.71A1 1 0 0 1 6.34 19l-.7-.71a1 1 0 0 1 0-1.41zm12.72 0a1 1 0 0 1 0 1.41L17.66 19a1 1 0 1 1-1.42-1.41l.71-.71a1 1 0 0 1 1.41 0zM6.34 5.05a1 1 0 0 1 0 1.41l-.71.71A1 1 0 0 1 4.22 5.76l.71-.71a1 1 0 0 1 1.41 0zM12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"
+            />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="inicio">
+      <section class="hero" aria-labelledby="titulo-principal">
+        <p class="eyebrow">Totalmente local · Sin cuentas · Sin seguimiento</p>
+        <h1 id="titulo-principal">Generador de códigos 2FA online gratis</h1>
+        <p class="lead">
+          Calcula códigos de verificación de dos factores (TOTP) en tu navegador.
+          La clave secreta no se envía a ningún servidor y no se guarda en esta página.
+        </p>
+      </section>
+
+      <section class="tool" id="herramienta" aria-labelledby="tool-title">
+        <div class="tool-card">
+          <div class="tool-head">
+            <h2 id="tool-title" class="visually-hidden">Generar un código</h2>
+            <p class="privacy-chip">
+              El cálculo ocurre solo en tu dispositivo. Puedes desconectar internet después de cargar la página.
+            </p>
+          </div>
+
+          <div class="field">
+            <label for="secret-input">Clave secreta o enlace otpauth://</label>
+            <textarea
+              id="secret-input"
+              name="secret"
+              rows="3"
+              autocomplete="off"
+              autocapitalize="characters"
+              spellcheck="false"
+              placeholder="Pega una clave Base32, por ejemplo JBSWY3DPEHPK3PXP, o un enlace otpauth://totp/…"
+            ></textarea>
+            <p class="field-error" id="secret-error" role="alert" hidden></p>
+          </div>
+
+          <div class="tool-actions">
+            <button type="button" class="btn btn-secondary" id="btn-scan" aria-haspopup="dialog" aria-expanded="false">
+              Escanear QR con la cámara
+            </button>
+            <button type="button" class="btn btn-secondary" id="btn-upload">
+              Subir imagen del QR
+            </button>
+            <input
+              id="qr-file"
+              type="file"
+              accept="image/*"
+              hidden
+            />
+            <button type="button" class="btn btn-ghost" id="btn-demo">Probar un ejemplo</button>
+            <button type="button" class="btn btn-ghost" id="btn-clear">Limpiar</button>
+          </div>
+
+          <div class="code-panel" aria-live="polite">
+            <div class="code-main">
+              <p class="code-issuer" id="code-issuer"></p>
+              <p class="totp-code is-idle" id="totp-code">••••••</p>
+              <p class="code-meta" id="code-meta"></p>
+              <div class="countdown-bar-track" aria-hidden="true">
+                <span class="countdown-bar-fill" id="countdown-bar"></span>
+              </div>
+            </div>
+            <div class="code-side">
+              <div class="ring-wrap" aria-hidden="true">
+                <svg class="ring" viewBox="0 0 60 60">
+                  <circle class="ring-track" cx="30" cy="30" r="26" />
+                  <circle class="ring-progress" id="ring-progress" cx="30" cy="30" r="26" />
+                </svg>
+                <span class="ring-seconds" id="countdown-seconds">30</span>
+              </div>
+              <button type="button" class="btn btn-primary" id="btn-copy" disabled>
+                <span id="copy-label">Copiar</span>
+              </button>
+            </div>
+          </div>
+          <p class="sr-live" id="live-status" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="content" id="guia" aria-labelledby="que-es">
+        <article>
+          <h2 id="que-es">Qué es la autenticación en dos pasos</h2>
+          <p>
+            La autenticación en dos pasos, o 2FA, pide una segunda prueba de que eres tú, además de la contraseña.
+            Esa prueba suele ser un código de seis dígitos que cambia cada 30 segundos. Así, aunque alguien
+            consiga tu contraseña, todavía le faltaría ese código para entrar.
+          </p>
+          <p>
+            Código 2FA es una herramienta en el navegador que calcula esos códigos con el estándar TOTP
+            (RFC 6238), el mismo que usan las aplicaciones autenticadoras habituales.
+          </p>
+        </article>
+
+        <article>
+          <h2 id="como-funciona">Cómo funciona un código TOTP</h2>
+          <p>
+            Al activar 2FA, el servicio te entrega una clave secreta, a veces dentro de un código QR.
+            El servicio y esta página usan esa misma clave y la hora actual para obtener el mismo número.
+          </p>
+          <p>
+            El cálculo se hace con HMAC y un contador que avanza cada 30 segundos, o el periodo que
+            indique el servicio. Como el código caduca enseguida, uno que se filtre deja de servir al poco rato.
+          </p>
+          <p>
+            Esta página no sustituye un lugar seguro para guardar tus claves de respaldo. Conserva esas
+            claves en un gestor de contraseñas cifrado. Si las pierdes, podrías quedarte sin acceso a la cuenta.
+          </p>
+        </article>
+
+        <article>
+          <h2 id="como-usarlo">Cómo usarlo</h2>
+          <ol class="steps">
+            <li>
+              <strong>Obtén la clave.</strong> En el servicio donde quieras activar 2FA, elige la opción de
+              aplicación autenticadora. Copia la clave de configuración (en formato Base32) o guarda el código QR.
+              Algunos sitios también muestran un enlace que empieza por <code>otpauth://</code>.
+            </li>
+            <li>
+              <strong>Pégala o escanea el QR.</strong> Escribe o pega la clave o el enlace en el recuadro de arriba.
+              También puedes escanear el QR con la cámara o subir una imagen del código.
+            </li>
+            <li>
+              <strong>Copia el código.</strong> Usa el botón Copiar y pega el número en el servicio para terminar
+              el acceso o la activación. El código se renueva solo cuando se acaba la cuenta regresiva.
+            </li>
+          </ol>
+        </article>
+
+        <article>
+          <h2 id="compatibilidad">Compatibilidad</h2>
+          <p>
+            Esta herramienta sigue el estándar RFC 6238, así que funciona con cualquier sitio que acepte
+            autenticadores TOTP habituales. Entre otros:
+          </p>
+          <ul class="compat">
+            <li>Correo y cuentas de Google, Microsoft o similares</li>
+            <li>Herramientas para desarrollo, como GitHub</li>
+            <li>Redes sociales y mensajería (X, Discord, Meta)</li>
+            <li>Plataformas de juegos, como Steam</li>
+            <li>Bancos, billeteras y casas de cambio que usen TOTP estándar</li>
+          </ul>
+          <p>
+            También admite claves en Base32, enlaces <code>otpauth://totp/</code> y, si el enlace lo indica,
+            algoritmos SHA-256 o SHA-512, códigos de 8 dígitos y periodos distintos de 30 segundos.
+          </p>
+        </article>
+
+        <article class="faq" id="preguntas">
+          <h2>Preguntas frecuentes</h2>
+          <details open>
+            <summary>¿Es seguro pegar mi clave aquí?</summary>
+            <p>
+              La clave se procesa solo en tu navegador, con la API de criptografía del propio sistema
+              (Web Crypto). No hay un servidor de por medio, no hay que crear una cuenta y la clave no
+              se guarda en el disco ni en la memoria persistente del navegador. Puedes comprobarlo
+              desconectando internet después de cargar la página: el generador sigue funcionando.
+            </p>
+            <p>
+              Aun así, usa esta herramienta en un equipo de confianza y evita pegar claves en
+              computadores públicos o compartidos.
+            </p>
+          </details>
+          <details>
+            <summary>¿Puedo usarlo sin conexión?</summary>
+            <p>
+              Sí. Cuando la página ya cargó, no necesita red: el cálculo usa el reloj de tu dispositivo
+              y el navegador. Puedes activar el modo avión y seguir generando códigos.
+            </p>
+          </details>
+          <details>
+            <summary>¿Por qué el servicio rechaza el código?</summary>
+            <p>
+              Lo más habitual es que el reloj de tu dispositivo esté desfasado. Los códigos TOTP dependen
+              de la hora exacta; si se atrasa o se adelanta siquiera un minuto, el número no coincide.
+              Activa la sincronización automática de fecha y hora y vuelve a intentarlo.
+            </p>
+            <p>
+              También revisa que hayas pegado la clave completa y que no corresponda a otra cuenta.
+            </p>
+          </details>
+          <details>
+            <summary>¿Guardan o venden mis datos?</summary>
+            <p>
+              No. No usamos analítica, cookies de seguimiento ni servicios de terceros. Lo único que esta
+              página puede recordar, si tú cambias el tema, es tu preferencia de apariencia clara u oscura.
+              Las claves no se almacenan.
+            </p>
+          </details>
+          <details>
+            <summary>¿Reemplaza a una app autenticadora?</summary>
+            <p>
+              Sirve como alternativa puntual —por ejemplo, si no tienes el teléfono a mano— siempre que
+              conserves la clave de respaldo en un lugar seguro, como un gestor de contraseñas. No es un
+              almacén de cuentas: cada vez que vuelvas, tendrás que volver a ingresar la clave.
+            </p>
+          </details>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>
+        <strong>Código 2FA</strong> es un generador TOTP que funciona por completo en el navegador.
+        No hay seguimiento. El código de este sitio es abierto y se puede alojar en cualquier página estática.
+      </p>
+      <p>
+        Si más adelante quieres un dominio propio, se puede apuntar a esta misma publicación.
+      </p>
+    </footer>
+
+    <div class="modal" id="camera-modal" hidden>
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="camera-title">
+        <div class="modal-head">
+          <h2 id="camera-title">Escanear código QR</h2>
+          <button type="button" class="btn btn-ghost" id="btn-camera-close">Cerrar</button>
+        </div>
+        <div class="viewfinder">
+          <video id="camera-video" autoplay playsinline muted></video>
+          <span class="viewfinder-frame" aria-hidden="true"></span>
+        </div>
+        <p class="camera-status" id="camera-status">Encuadra el código QR dentro del recuadro.</p>
+      </div>
+    </div>
+
+    <script src="vendor/jsQR.js" defer></script>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

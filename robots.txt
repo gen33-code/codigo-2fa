@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://gen33-code.github.io/codigo-2fa/
